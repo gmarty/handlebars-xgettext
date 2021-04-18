@@ -76,7 +76,7 @@ function xgettext (input, options, cb) {
   options['join-existing'] = options['join-existing'] || false;
   options['sort-output'] = options['sort-output'] || false;
 
-  if (typeof options.keyword === 'string') {
+  if (typeof options.keyword === 'string' || typeof options.keyword === 'boolean') {
     options.keyword = [options.keyword];
   }
 
@@ -90,14 +90,15 @@ function xgettext (input, options, cb) {
 
     if (!parsers[name]) {
       const Parser = require(`gettext-${name}`);
+      const combinedSpecs = {};
 
-      if (Object.keys(keywordSpec).length > 0) {
-        parsers[name] = new Parser(keywordSpec);
-      } else if (Parser.keywordSpec) {
-        parsers[name] = new Parser(Parser.keywordSpec);
+      if (Parser.keywordSpec && !keywordSpec.noDefaults) {
+        Object.assign(combinedSpecs, Parser.keywordSpec, keywordSpec.spec);
       } else {
-        parsers[name] = new Parser();
+        Object.assign(combinedSpecs, keywordSpec.spec);
       }
+
+      parsers[name] = new Parser(combinedSpecs);
     }
 
     return parsers[name];

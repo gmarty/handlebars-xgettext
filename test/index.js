@@ -190,6 +190,27 @@ describe('API', function () {
       });
     });
   });
+  it('should handle no keywords', function (done) {
+    xgettext(['test/fixtures/keyword.hbs'], {
+      keyword: [true],
+      output: '-'
+    }, function (po) {
+      const context = gt.po.parse(po).translations[''];
+
+      assert(context === undefined);
+
+      xgettext(['test/fixtures/plural.hbs'], {
+        keyword: [true],
+        output: '-'
+      }, function (po) {
+        const context = gt.po.parse(po).translations[''];
+
+        assert(context === undefined);
+
+        done();
+      });
+    });
+  });
   it('should handle keywordspec', function (done) {
     xgettext(['test/fixtures/keyword.hbs'], {
       keyword: ['i18n', '$'],
@@ -199,6 +220,7 @@ describe('API', function () {
 
       assert('Image description' in context);
       assert('regex escaped keyword' in context);
+      assert(Object.keys(context).length === 4);
 
       xgettext(['test/fixtures/plural.hbs'], {
         keyword: ['i18n:1,2', 'order:2,3'],
@@ -208,6 +230,7 @@ describe('API', function () {
 
         assert.strictEqual(context.keyword.msgid_plural, 'keywords');
         assert.strictEqual(context.difference.msgid_plural, 'differences');
+        assert(Object.keys(context).length === 5);
 
         done();
       });

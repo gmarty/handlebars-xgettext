@@ -12,6 +12,10 @@ function indexify (idx) {
 function addToSpec (spec, item) {
   let parts;
 
+  if (typeof item === 'boolean') {
+    return spec
+  }
+
   while ((parts = specPattern.exec(item)) !== null) {
     const keyword = parts[1];
     let positions = { msgid: 0 };
@@ -49,9 +53,11 @@ function addToSpec (spec, item) {
 }
 
 module.exports = function createKeywordSpec (spec) {
-  if (typeof spec === 'string') {
+  if (typeof spec === 'string' || typeof spec === 'boolean') {
     spec = [spec];
   }
 
-  return spec.reduce(addToSpec, {});
+  let noDefaults = spec.filter(item => typeof item === 'boolean' && item).length > 0;
+
+  return { spec: spec.reduce(addToSpec, {}), noDefaults: noDefaults };
 };
